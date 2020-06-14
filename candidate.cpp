@@ -2,15 +2,76 @@
 #include <vector>
 #include <string>
 #include <iomanip>
+#include <map>
+#include <cmath>
 
 using namespace std;
 
+map <int,int> mpMaSo;
+int toVal(string s) {
+    int temp=0;
+    for (int i=0; i<s.length(); i++) {
+        temp=temp*10+(s[i]-'0');
+    }
+    return temp;
+}
+bool checkNgaySinh(string ngaySinh) {
+    string day="", month="", year="";
+    if (ngaySinh.length()<7) return false;
+    for (int i=0; i<2; i++)
+        day+=ngaySinh[i];
+    for (int i=3; i<5; i++)
+        month+=ngaySinh[i];
+    for (int i=6; i<ngaySinh.length(); i++)
+        year+=ngaySinh[i];
+    if (ngaySinh[2]!='/' || ngaySinh[5]!='/') 
+        return false;
+    for (int i=0; i<2; i++) {
+        if (day[i]<'0' || day[i]>'9')
+           return false;
+        if (month[i]<'0' || month[i]>'9')
+            return false;
+    }
+    for (int i=0; i<year.length(); i++) {
+        if (year[i]<'0' || year[i]>'9')
+            return false;
+    }
+    int numDay=toVal(day), numMonth=toVal(month), numYear=toVal(year);
+    switch(numMonth) {
+        case 1:
+        case 3:
+        case 5:
+        case 7:
+        case 8:
+        case 10:
+        case 12:
+            if (numDay>31) return false;
+            break;
+        case 4:
+        case 6:
+        case 9:
+        case 11:
+            if (numDay>30) return false;
+            break;
+        case 2:
+            if ((numYear%100==0 && numYear%400==0) || numYear%4==0) {
+                if (numDay>29) return false;
+            } else {
+                if (numDay>28) return false;
+            }
+            break;
+        default:
+            return false;
+    }
+    return true;
+}
 class candidate {
     private:
-        int ma, diemToan, diemVan, diemAnh;
+        int ma;
+        float diemToan, diemVan, diemAnh;
         string ngaySinh, ten;
     public:
-        void set(int ma, string ten, string ngaySinh, int diemToan, int diemVan, int diemAnh) {
+        void set(int ma, string ten, string ngaySinh, float diemToan, float diemVan, float diemAnh) {
             this->ma=ma;
             this->ten=ten;
             this->ngaySinh=ngaySinh;
@@ -35,13 +96,13 @@ class candidate {
         string getNgaySinh() {
             return ngaySinh;
         }
-        int getDiemToan() {
+        float getDiemToan() {
             return diemToan;
         }
-        int getDiemVan() {
+        float getDiemVan() {
             return diemVan;
         }
-        int getDiemAnh() {
+        float getDiemAnh() {
             return diemAnh;
         }
 };
@@ -55,16 +116,29 @@ class listCandidate {
             cin >> soLuong;
             for (int i=0; i<soLuong; i++) {
                 candidate temp;
-                int ma, toan, van, anh;
+                int ma;
+                float toan, anh, van;
                 string birth, name;
-                cout << "----NHAP THONG TIN THI SINH "<< i <<"----\n";
+                cout << "----NHAP THONG TIN THI SINH "<< i+1 <<"----\n";
                 cout << "Nhap ma so thi sinh: ";
                 cin >> ma;
+                while (mpMaSo[ma] || ma<0) {
+                    cout << "Thi sinh " << ma << " da dang ki.\n";
+                    cout << "Moi ban nhap lai.\n";
+                    cout << "Nhap ma so thi sinh: ";
+                    cin >> ma;
+                }
+                mpMaSo[ma]++;
                 cout << "Nhap ten thi sinh: ";
                 cin.ignore();
                 getline(cin, name);
-                cout << "Nhap ngay sinh: ";
-                getline(cin, birth);
+                cout << "Nhap ngay sinh(dd/mm/year): ";
+                cin >> birth;
+                while (!checkNgaySinh(birth)) {
+                    cout << "Ngay sinh khong hop le, ban vui long nhap lai.\n";
+                    cout << "Nhap ngay sinh(dd/mm/year): ";
+                    cin >> birth;
+                }
                 cout << "Nhap diem toan: ";
                 cin >> toan;
                 cout << "Nhap diem van: ";
@@ -77,16 +151,29 @@ class listCandidate {
         }
         void themThiSinh() {
             candidate temp;
-            int ma, toan, van, anh;
+            int ma;
+            float toan, anh, van;
             string birth, name;
             cout << "----THEM THI SINH VAO DANH SACH----\n";
             cout << "Nhap ma so thi sinh: ";
             cin >> ma;
+            while (mpMaSo[ma] || ma<0) {
+                cout << "Thi sinh " << ma << " da dang ki.\n";
+                cout << "Moi ban nhap lai.\n";
+                cout << "Nhap ma so thi sinh: ";
+                cin >> ma;
+            }
+            mpMaSo[ma]++;
             cout << "Nhap ten thi sinh: ";
             cin.ignore();
             getline(cin, name);
-            cout << "Nhap ngay sinh: ";
-            getline(cin, birth);
+            cout << "Nhap ngay sinh(dd/mm/year): ";
+            cin >> birth;
+            while (!checkNgaySinh(birth)) {
+                cout << "Ngay sinh khong hop le, ban vui long nhap lai.\n";
+                cout << "Nhap ngay sinh(dd/mm/year): ";
+                cin >> birth;
+            }
             cout << "Nhap diem toan: ";
             cin >> toan;
             cout << "Nhap diem van: ";
@@ -125,9 +212,9 @@ class listCandidate {
                 cout << left << setw(8) << setfill(' ') << thiSinh[i].getMa();
                 cout << left << setw(30) << setfill(' ') << thiSinh[i].getTen();
                 cout << left << setw(20) << setfill(' ') << thiSinh[i].getNgaySinh();
-                cout << left << setw(8) << setfill(' ') << thiSinh[i].getDiemToan();
-                cout << left << setw(8) << setfill(' ') << thiSinh[i].getDiemVan();
-                cout << left << setw(8) << setfill(' ') << thiSinh[i].getDiemAnh() << "\n";
+                cout << left << setw(8) << setfill(' ') << roundf(thiSinh[i].getDiemToan()*100)/100;
+                cout << left << setw(8) << setfill(' ') << roundf(thiSinh[i].getDiemVan()*100)/100;
+                cout << left << setw(8) << setfill(' ') << roundf(thiSinh[i].getDiemAnh()*100)/100 << "\n";
             }
         }
         int getSoLuong() {
@@ -147,6 +234,7 @@ int main() {
         cout << "Nhap 0 de thoat chuong trinh.\n";
         cin >> x;
         cout << "**********\n";
+        if (!list.getSoLuong()) empty=true;
         switch(x) {
             case 1:
                 if (empty) {
@@ -157,7 +245,12 @@ int main() {
                 }
                 break;
             case 2:
-                list.themThiSinh();
+                if (empty) {
+                    cout << "Ban chua co danh sach thi sinh de them!\n";
+                    cout << "Moi ban nhap 1 de khoi tao danh sach.\n";
+                } else {
+                    list.themThiSinh();
+                }
                 break;
             case 3:
                 if (empty) {
@@ -168,7 +261,6 @@ int main() {
                     cout << "Nhap ma so thi sinh ban can xoa: ";
                     cin >> ma;
                     list.xoaThiSinh(ma);
-                    if (!list.getSoLuong()) empty=true;
                 }
                 break;
             case 4:
