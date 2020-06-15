@@ -17,25 +17,29 @@ int toVal(string s) {
 }
 bool checkNgaySinh(string ngaySinh) {
     string day="", month="", year="";
-    if (ngaySinh.length()<7) return false;
-    for (int i=0; i<2; i++)
-        day+=ngaySinh[i];
-    for (int i=3; i<5; i++)
-        month+=ngaySinh[i];
-    for (int i=6; i<ngaySinh.length(); i++)
-        year+=ngaySinh[i];
-    if (ngaySinh[2]!='/' || ngaySinh[5]!='/') 
-        return false;
-    for (int i=0; i<2; i++) {
-        if (day[i]<'0' || day[i]>'9')
-           return false;
-        if (month[i]<'0' || month[i]>'9')
-            return false;
+    int count=0;
+    for (int i=0; i<ngaySinh.length(); i++) {
+        if (ngaySinh[i]=='/') count ++;
+        else 
+            if (ngaySinh[i]<'0' || ngaySinh[i]>'9') return false;
     }
-    for (int i=0; i<year.length(); i++) {
-        if (year[i]<'0' || year[i]>'9')
-            return false;
+    if (count!=2) return false;
+    int k=0;
+    while (ngaySinh[k]!='/') {
+        day+=ngaySinh[k];
+        k++;
     }
+    k++;
+    while (ngaySinh[k]!='/') {
+        month+=ngaySinh[k];
+        k++;
+    }
+    k++;
+    while (k<ngaySinh.length()) {
+        year+=ngaySinh[k];
+        k++;
+    }
+    if (day=="" || month=="" || year=="") return false;
     int numDay=toVal(day), numMonth=toVal(month), numYear=toVal(year);
     switch(numMonth) {
         case 1:
@@ -62,6 +66,14 @@ bool checkNgaySinh(string ngaySinh) {
             break;
         default:
             return false;
+    }
+    return true;
+}
+bool checkTen(string ten) {
+    for (int i=0; i<ten.length(); i++) {
+        if (ten[i]<'a' || ten[i]>'z')
+            if (ten[i]<'A' || ten[i]>'Z')
+                if (ten[i]!=' ') return false;
     }
     return true;
 }
@@ -132,19 +144,39 @@ class listCandidate {
                 cout << "Nhap ten thi sinh: ";
                 cin.ignore();
                 getline(cin, name);
-                cout << "Nhap ngay sinh(dd/mm/year): ";
+                while (!checkTen(name)) {
+                    cout << "Ten khong hop le!\n";
+                    cout << "Moi ban nhap lai ten: ";
+                    getline(cin, name);
+                }
+                cout << "Nhap ngay sinh(day/month/year): ";
                 cin >> birth;
                 while (!checkNgaySinh(birth)) {
                     cout << "Ngay sinh khong hop le, ban vui long nhap lai.\n";
-                    cout << "Nhap ngay sinh(dd/mm/year): ";
+                    cout << "Nhap ngay sinh(day/month/year): ";
                     cin >> birth;
                 }
                 cout << "Nhap diem toan: ";
                 cin >> toan;
+                while (toan<0 && toan>10) {
+                    cout << "Diem khong hop le!\n";
+                    cout << "Moi ban nhap lai diem toan: ";
+                    cin >> toan;
+                }
                 cout << "Nhap diem van: ";
                 cin >> van;
+                while (van<0 && van>10) {
+                    cout << "Diem khong hop le!\n";
+                    cout << "Moi ban nhap lai diem van: ";
+                    cin >> van;
+                }
                 cout << "Nhap diem Anh: ";
                 cin >> anh;
+                while (anh<0 && anh>10) {
+                    cout << "Diem khong hop le!\n";
+                    cout << "Moi ban nhap lai diem Anh: ";
+                    cin >> anh;
+                }
                 temp.set(ma, name, birth, toan, van, anh);
                 thiSinh.push_back(temp);
             }
@@ -167,11 +199,16 @@ class listCandidate {
             cout << "Nhap ten thi sinh: ";
             cin.ignore();
             getline(cin, name);
-            cout << "Nhap ngay sinh(dd/mm/year): ";
+            while (!checkTen(name)) {
+                cout << "Ten khong hop le!\n";
+                cout << "Moi ban nhap lai ten: ";
+                getline(cin, name);
+            }
+            cout << "Nhap ngay sinh(day/month/year): ";
             cin >> birth;
             while (!checkNgaySinh(birth)) {
                 cout << "Ngay sinh khong hop le, ban vui long nhap lai.\n";
-                cout << "Nhap ngay sinh(dd/mm/year): ";
+                cout << "Nhap ngay sinh(day/month/year): ";
                 cin >> birth;
             }
             cout << "Nhap diem toan: ";
@@ -223,19 +260,19 @@ class listCandidate {
 };
 int main() {
     listCandidate list;
-    int x=-1;
+    int luaChon=-1;
     bool empty=true;
-    while (x) {
+    while (luaChon) {
         cout << "----MENU----\n";
         cout << "Nhap 1 de khoi tao danh sach thi sinh.\n";
         cout << "Nhap 2 de them thi sinh vao danh sach.\n";
         cout << "Nhap 3 de xoa thi sinh nao do khoi danh sach.\n";
         cout << "Nhap 4 de xem danh sach thi sinh.\n";
         cout << "Nhap 0 de thoat chuong trinh.\n";
-        cin >> x;
+        cin >> luaChon;
         cout << "**********\n";
         if (!list.getSoLuong()) empty=true;
-        switch(x) {
+        switch(luaChon) {
             case 1:
                 if (empty) {
                     empty=false;
